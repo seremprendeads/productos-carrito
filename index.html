@@ -131,7 +131,7 @@
                     const newDiv = document.createElement('div');
                     newDiv.className = 'item text-center bg-white p-5 shadow-lg shadow-gray-400 tracking-wide rounded-lg hover:shadow-xl transition-shadow duration-300';
                     newDiv.innerHTML = `
-                        <img src="img/productos-cards/pizzas/${value.image}" class="w-full object-cover mx-auto rounded-lg">
+                        <img src="productos-cards/pizzas/${value.image}" class="w-full object-cover mx-auto rounded-lg">
                         <div class="title font-semibold mt-4 text-lg">${value.name}</div>
                         <div class="price my-2.5 text-green-600 font-bold">${formatPrice(value.price)}</div>
                         <button onclick="addToCard(${key})" 
@@ -174,7 +174,7 @@
                         newDiv.className = 'grid grid-cols-[80px,1fr,1fr,1fr] md:grid-cols-[100px,1fr,1fr,1fr] text-white gap-2.5 mb-4 items-center bg-gray-700 rounded-lg p-2';
                         newDiv.innerHTML = `
                             <div class="flex justify-center items-center">
-                                <img src="img/productos-cards/pizzas/${value.image}" class="w-[90%] rounded">
+                                <img src="productos-cards/pizzas/${value.image}" class="w-[90%] rounded">
                             </div>
                             <div class="flex justify-center items-center text-sm md:text-base">${value.name}</div>
                             <div class="flex justify-center items-center text-sm md:text-base">${formatPrice(value.price)}</div>
