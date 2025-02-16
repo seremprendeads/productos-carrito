@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-200 font-sans overflow-x-hidden">
+    <div class="container mx-auto px-4 transition-transform duration-300 relative">
+        <header class="grid grid-cols-[1fr,50px] mt-12 bg-white sticky top-0 p-4 rounded-lg shadow-sm">
+            <h1 class="text-xl md:text-2xl font-bold">Su carrito de compras</h1>
+            <div class="shopping relative text-right cursor-pointer">
+                <img src="img/productos-cards/pizzas/shopping.svg" class="w-8 md:w-10">
+                <span class="quantity absolute -top-1 left-4/5 bg-red-500 text-white rounded-full px-2.5 py-0.5 flex justify-center items-center text-sm">0</span>
+            </div>
+        </header>
+
+        <div class="list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-12 mb-12">
+            <!-- Products will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Overlay for mobile -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 opacity-0 pointer-events-none transition-opacity duration-300" id="overlay"></div>
+
+    <div class="card fixed top-0 -right-full w-full md:w-[400px] lg:w-[500px] bg-gray-800 h-screen transition-all duration-300">
+        <h1 class="text-yellow-500 font-normal m-0 p-5 h-20 flex items-center">Carrito</h1>
+        <ul class="listCard px-4 overflow-y-auto max-h-[calc(100vh-230px)]">
+            <!-- Cart items will be inserted here -->
+        </ul>
+        <div class="checkOut absolute bottom-0 w-full">
+            <div class="total bg-yellow-500 h-[70px] flex justify-center items-center font-bold text-lg">0</div>
+            <div class="grid grid-cols-2">
+                <div class="closeShopping bg-gray-900 text-white h-[70px] flex justify-center items-center font-bold cursor-pointer hover:bg-gray-700 transition-colors">
+                    Cerrar
+                </div>
+                <button onclick="sendToWhatsApp()" class="whatsappButton bg-green-600 text-white h-[70px] flex justify-center items-center font-bold cursor-pointer hover:bg-green-700 transition-colors gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+                    </svg>
+                    Enviar a WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const products = [
+            {
+                id: 1,
+                name: 'Pizza Margherita',
+                image: '1.PNG',
+                price: 120000
+            },
+            {
+                id: 2,
+                name: 'Pizza Pepperoni',
+                image: '2.PNG',
+                price: 120000
+            },
+            {
+                id: 3,
+                name: 'Pizza Hawaiana',
+                image: '3.PNG',
+                price: 220000
+            },
+            {
+                id: 4,
+                name: 'Pizza Vegetariana',
+                image: '4.PNG',
+                price: 123000
+            },
+            {
+                id: 5,
+                name: 'Pizza Suprema',
+                image: '5.PNG',
+                price: 320000
+            },
+            {
+                id: 6,
+                name: 'Pizza Mexicana',
+                image: '6.PNG',
+                price: 120000
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const openShopping = document.querySelector('.shopping');
+            const closeShopping = document.querySelector('.closeShopping');
+            const list = document.querySelector('.list');
+            const listCard = document.querySelector('.listCard');
+            const body = document.querySelector('body');
+            const total = document.querySelector('.total');
+            const quantity = document.querySelector('.quantity');
+            const card = document.querySelector('.card');
+            const overlay = document.getElementById('overlay');
+            let listCards = [];
+
+            function formatPrice(price) {
+                return new Intl.NumberFormat('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0
+                }).format(price);
+            }
+
+            function openCart() {
+                card.classList.remove('-right-full');
+                card.classList.add('right-0');
+                overlay.classList.add('opacity-100');
+                overlay.classList.remove('pointer-events-none');
+                body.classList.add('overflow-hidden');
+            }
+
+            function closeCart() {
+                card.classList.add('-right-full');
+                card.classList.remove('right-0');
+                overlay.classList.remove('opacity-100');
+                overlay.classList.add('pointer-events-none');
+                body.classList.remove('overflow-hidden');
+            }
+
+            openShopping.addEventListener('click', openCart);
+            closeShopping.addEventListener('click', closeCart);
+            overlay.addEventListener('click', closeCart);
+
+            function initApp() {
+                products.forEach((value, key) => {
+                    const newDiv = document.createElement('div');
+                    newDiv.className = 'item text-center bg-white p-5 shadow-lg shadow-gray-400 tracking-wide rounded-lg hover:shadow-xl transition-shadow duration-300';
+                    newDiv.innerHTML = `
+                        <img src="img/productos-cards/pizzas/${value.image}" class="w-full object-cover mx-auto rounded-lg">
+                        <div class="title font-semibold mt-4 text-lg">${value.name}</div>
+                        <div class="price my-2.5 text-green-600 font-bold">${formatPrice(value.price)}</div>
+                        <button onclick="addToCard(${key})" 
+                            class="bg-green-600 text-white w-full py-2.5 rounded-xl 
+                            hover:bg-green-700 transition-colors duration-300 flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+                            </svg>
+                            Agregar al Carrito
+                        </button>`;
+                    list.appendChild(newDiv);
+                });
+            }
+
+            window.addToCard = function(key) {
+                if (!listCards[key]) {
+                    listCards[key] = JSON.parse(JSON.stringify(products[key]));
+                    listCards[key].quantity = 1;
+                }
+                reloadCard();
+                // Show feedback
+                const feedback = document.createElement('div');
+                feedback.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in-out';
+                feedback.textContent = 'Producto agregado al carrito';
+                document.body.appendChild(feedback);
+                setTimeout(() => feedback.remove(), 2000);
+            }
+
+            function reloadCard() {
+                listCard.innerHTML = '';
+                let count = 0;
+                let totalPrice = 0;
+                
+                listCards.forEach((value, key) => {
+                    if (value) {
+                        totalPrice += value.price;
+                        count += value.quantity;
+                        
+                        const newDiv = document.createElement('li');
+                        newDiv.className = 'grid grid-cols-[80px,1fr,1fr,1fr] md:grid-cols-[100px,1fr,1fr,1fr] text-white gap-2.5 mb-4 items-center bg-gray-700 rounded-lg p-2';
+                        newDiv.innerHTML = `
+                            <div class="flex justify-center items-center">
+                                <img src="img/productos-cards/pizzas/${value.image}" class="w-[90%] rounded">
+                            </div>
+                            <div class="flex justify-center items-center text-sm md:text-base">${value.name}</div>
+                            <div class="flex justify-center items-center text-sm md:text-base">${formatPrice(value.price)}</div>
+                            <div class="flex justify-center items-center gap-1 md:gap-2">
+                                <button onclick="changeQuantity(${key}, ${value.quantity - 1})"
+                                    class="bg-white/30 px-2 py-1 rounded hover:bg-white/40 transition-colors">-</button>
+                                <div class="count mx-1 md:mx-2.5">${value.quantity}</div>
+                                <button onclick="changeQuantity(${key}, ${value.quantity + 1})"
+                                    class="bg-white/30 px-2 py-1 rounded hover:bg-white/40 transition-colors">+</button>
+                            </div>`;
+                        listCard.appendChild(newDiv);
+                    }
+                });
+
+                total.innerText = formatPrice(totalPrice);
+                quantity.innerText = count;
+            }
+
+            window.changeQuantity = function(key, quantity) {
+                if (quantity === 0) {
+                    delete listCards[key];
+                } else {
+                    listCards[key].quantity = quantity;
+                    listCards[key].price = quantity * products[key].price;
+                }
+                reloadCard();
+            }
+
+            window.sendToWhatsApp = function() {
+                let message = "🛒 *Nuevo Pedido*\n\n";
+                let hasItems = false;
+                
+                listCards.forEach((item) => {
+                    if (item) {
+                        hasItems = true;
+                        message += `*${item.name}*\n`;
+                        message += `Cantidad: ${item.quantity}\n`;
+                        message += `Precio: ${formatPrice(item.price)}\n\n`;
+                    }
+                });
+
+                if (!hasItems) {
+                    alert('El carrito está vacío');
+                    return;
+                }
+
+                const totalPrice = listCards.reduce((sum, item) => {
+                    return sum + (item ? item.price : 0);
+                }, 0);
+
+                message += `*Total: ${formatPrice(totalPrice)}*\n\n`;
+                message += "¿Podría confirmarme este pedido?";
+
+                // Encode the message for WhatsApp
+                const encodedMessage = encodeURIComponent(message);
+                
+                // Replace with your actual WhatsApp number
+                const phoneNumber = "+541130207987"; // Replace with your number
+                
+                // Create WhatsApp URL
+                const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+                
+                // Open WhatsApp in a new tab
+                window.open(whatsappURL, '_blank');
+            }
+
+            initApp();
+        });
+    </script>
+</body>
+</html>
